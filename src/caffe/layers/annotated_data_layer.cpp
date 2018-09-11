@@ -227,15 +227,25 @@ void AnnotatedDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
         this->data_transformer_->Transform(*sampled_datum,
                                            &(this->transformed_data_),
                                            &transformed_anno_vec);
+
+        all_anno[item_id] = transformed_anno_vec;
         if (anno_type_ == AnnotatedDatum_AnnotationType_BBOX) {
           // Count the number of bboxes.
-          for (int g = 0; g < transformed_anno_vec.size(); ++g) {
-            num_bboxes += transformed_anno_vec[g].annotation_size();
-          }
+          const vector<AnnotationGroup>& anno_vec = all_anno[item_id];
+          for (int g = 0; g < anno_vec.size(); ++g) {
+            const AnnotationGroup& anno_group = anno_vec[g];
+            for (int a = 0; a < anno_group.annotation_size(); ++a) {
+              const Annotation& anno = anno_group.annotation(a);
+              const NormalizedBBox& bbox = anno.bbox();
+              if(IfValidBBox(bbox)){
+                num_bboxes += 1;
+              }
+            }
+          }          
         } else {
           LOG(FATAL) << "Unknown annotation type.";
         }
-        all_anno[item_id] = transformed_anno_vec;
+
       } else {
         this->data_transformer_->Transform(sampled_datum->datum(),
                                            &(this->transformed_data_));
@@ -284,14 +294,16 @@ void AnnotatedDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
             for (int a = 0; a < anno_group.annotation_size(); ++a) {
               const Annotation& anno = anno_group.annotation(a);
               const NormalizedBBox& bbox = anno.bbox();
-              top_label[idx++] = item_id;
-              top_label[idx++] = anno_group.group_label();
-              top_label[idx++] = anno.instance_id();
-              top_label[idx++] = bbox.xmin();
-              top_label[idx++] = bbox.ymin();
-              top_label[idx++] = bbox.xmax();
-              top_label[idx++] = bbox.ymax();
-              top_label[idx++] = bbox.difficult();
+              if(IfValidBBox(bbox)){
+                top_label[idx++] = item_id;
+                top_label[idx++] = anno_group.group_label();
+                top_label[idx++] = anno.instance_id();
+                top_label[idx++] = bbox.xmin();
+                top_label[idx++] = bbox.ymin();
+                top_label[idx++] = bbox.xmax();
+                top_label[idx++] = bbox.ymax();
+                top_label[idx++] = bbox.difficult();
+              }
             }
           }
         }
