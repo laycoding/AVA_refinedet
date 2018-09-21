@@ -1094,7 +1094,7 @@ void MineHardExamples(const Blob<Dtype>& conf_blob,
     set<int> sel_indices;
     vector<int> neg_indices;
     //如果为无标签的负样本图像
-    if(0==match_indices.size()&&conf_blob != NULL)
+    if(0==match_indices.size())//&&*conf_blob != NULL)
     {
       // const vector<NormalizedBBox>& arm_loc_preds = all_arm_loc_preds[i].find(-1)->second;
       //vector<NormalizedBBox> decode_prior_bboxes;
@@ -1111,9 +1111,10 @@ void MineHardExamples(const Blob<Dtype>& conf_blob,
       int num_sel = 0;
       // Get potential indices and loss pairs.
       vector<pair<float, int> > loss_indices;
+      const Dtype* conf_data = conf_blob.cpu_data();
       for (int m = 0; m < num_priors; ++m) {
         //返回ODM网络的无label样本中高置信度负样本
-          if(conf_blob[i*num_priors*2+2*m+1] >= objectness_score&&std::exp(-loss[m])<1-nms_threshold){
+          if(conf_data[i*num_priors*2+2*m+1] >= objectness_score&&std::exp(-loss[m])<1-nms_threshold){
               loss_indices.push_back(std::make_pair(1.0-std::exp(-loss[m]), m));
               ++num_sel;
         }
