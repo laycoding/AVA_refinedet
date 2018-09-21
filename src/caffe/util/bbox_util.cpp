@@ -1000,7 +1000,7 @@ int thiscount=0;
 template <typename Dtype>
 void MineHardExamples(const Blob<Dtype>& conf_blob,
     const vector<LabelBBox>& all_loc_preds,
-    const vector<LabelBBox>& all_arm_loc_preds,
+
     const map<int, vector<NormalizedBBox> >& all_gt_bboxes,
     const vector<NormalizedBBox>& prior_bboxes,
     const vector<vector<float> >& prior_variances,
@@ -1095,17 +1095,17 @@ void MineHardExamples(const Blob<Dtype>& conf_blob,
     set<int> sel_indices;
     vector<int> neg_indices;
     //如果为无标签的负样本图像
-    if(0==match_indices.size()&&arm_conf_data != NULL)
+    if(0==match_indices.size()&&conf_blob != NULL)
     {
-      const vector<NormalizedBBox>& arm_loc_preds = all_arm_loc_preds[i].find(-1)->second;
-      vector<NormalizedBBox> decode_prior_bboxes;
+      // const vector<NormalizedBBox>& arm_loc_preds = all_arm_loc_preds[i].find(-1)->second;
+      //vector<NormalizedBBox> decode_prior_bboxes;
       bool clip_bbox = false;
-      DecodeBBoxes(prior_bboxes, prior_variances,
-        code_type, false, clip_bbox,
-      arm_loc_preds, &decode_prior_bboxes);
+      // DecodeBBoxes(prior_bboxes, prior_variances,
+      //   code_type, false, clip_bbox,
+      // arm_loc_preds, &decode_prior_bboxes);
       const vector<NormalizedBBox>& label_loc_preds = all_loc_preds[i].find(-1)->second;
       vector<NormalizedBBox> loc_bboxes;
-      DecodeBBoxes(decode_prior_bboxes, prior_variances,
+      DecodeBBoxes(prior_bboxes, prior_variances,
                    code_type, false, clip_bbox,
                    label_loc_preds, &(loc_bboxes));
       //LOG(INFO)<<"NO LABEL";
@@ -1114,7 +1114,7 @@ void MineHardExamples(const Blob<Dtype>& conf_blob,
       vector<pair<float, int> > loss_indices;
       for (int m = 0; m < num_priors; ++m) {
         //返回ODM网络的无label样本中高置信度负样本
-          if(arm_conf_data[i*num_priors*2+2*m+1] >= objectness_score&&std::exp(-loss[m])<1-nms_threshold){
+          if(conf_blob[i*num_priors*2+2*m+1] >= objectness_score&&std::exp(-loss[m])<1-nms_threshold){
               loss_indices.push_back(std::make_pair(1.0-std::exp(-loss[m]), m));
               ++num_sel;
         }

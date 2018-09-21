@@ -190,10 +190,10 @@ void MultiBoxLossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 
   num_matches_ = 0;
   int num_negs = 0;
-  MineHardExamples(*bottom[1], all_loc_preds, all_arm_loc_preds,all_gt_bboxes, prior_bboxes,
+  MineHardExamples(*bottom[1], all_loc_preds,all_gt_bboxes, prior_bboxes,
                  prior_variances, all_match_overlaps, multibox_loss_param_,
                  &num_matches_, &num_negs, &all_match_indices_,
-                 &all_neg_indices_, arm_conf_data);
+                 &all_neg_indices_);
   if (num_matches_ >= 1) {
     // Form data to pass on to loc_loss_layer_.
     vector<int> loc_shape(2);
