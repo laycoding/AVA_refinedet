@@ -1039,9 +1039,11 @@ void MineHardExamples(const Blob<Dtype>& conf_blob,
   const bool has_nms_param = multibox_loss_param.has_nms_param();
   float nms_threshold = 0;
   int top_k = -1;
+  float eta = 1.0;
   if (has_nms_param) {
     nms_threshold = multibox_loss_param.nms_param().nms_threshold();
     top_k = multibox_loss_param.nms_param().top_k();
+    eta = multibox_loss_param.nms_param().eta();
   }
   const int sample_size = multibox_loss_param.sample_size();
   // Compute confidence losses based on matching results.
