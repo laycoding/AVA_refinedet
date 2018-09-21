@@ -1000,7 +1000,6 @@ int thiscount=0;
 template <typename Dtype>
 void MineHardExamples(const Blob<Dtype>& conf_blob,
     const vector<LabelBBox>& all_loc_preds,
-
     const map<int, vector<NormalizedBBox> >& all_gt_bboxes,
     const vector<NormalizedBBox>& prior_bboxes,
     const vector<vector<float> >& prior_variances,
@@ -1245,7 +1244,6 @@ void MineHardExamples(const Blob<Dtype>& conf_blob,
 // Explicite initialization.
 template void MineHardExamples(const Blob<float>& conf_blob,
     const vector<LabelBBox>& all_loc_preds,
-    const vector<LabelBBox>& all_arm_loc_preds,
     const map<int, vector<NormalizedBBox> >& all_gt_bboxes,
     const vector<NormalizedBBox>& prior_bboxes,
     const vector<vector<float> >& prior_variances,
@@ -1256,9 +1254,7 @@ template void MineHardExamples(const Blob<float>& conf_blob,
     vector<vector<int> >* all_neg_indices,
   const float* arm_conf_data);
 template void MineHardExamples(const Blob<double>& conf_blob,
-    const vector<LabelBBox>& all_loc_preds,
-    const vector<LabelBBox>& all_arm_loc_preds,
-    const map<int, vector<NormalizedBBox> >& all_gt_bboxes,
+    const vector<LabelBBox>& all_loc_preds,    const map<int, vector<NormalizedBBox> >& all_gt_bboxes,
     const vector<NormalizedBBox>& prior_bboxes,
     const vector<vector<float> >& prior_variances,
     const vector<map<int, vector<float> > >& all_match_overlaps,
