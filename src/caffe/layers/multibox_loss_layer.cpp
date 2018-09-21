@@ -153,12 +153,12 @@ void MultiBoxLossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   const Dtype* arm_loc_data = NULL;
   vector<LabelBBox> all_arm_loc_preds;
   if (bottom.size() >= 5) {
-	arm_conf_data = bottom[4]->cpu_data();
+  arm_conf_data = bottom[4]->cpu_data();
   }
   if (bottom.size() >= 6) {
-	arm_loc_data = bottom[5]->cpu_data();
-	GetLocPredictions(arm_loc_data, num_, num_priors_, loc_classes_, share_location_,
-	                  &all_arm_loc_preds);
+  arm_loc_data = bottom[5]->cpu_data();
+  GetLocPredictions(arm_loc_data, num_, num_priors_, loc_classes_, share_location_,
+                    &all_arm_loc_preds);
   }
 
   // Retrieve all ground truth.
@@ -180,8 +180,8 @@ void MultiBoxLossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   // Find matches between source bboxes and ground truth bboxes.
   vector<map<int, vector<float> > > all_match_overlaps;
   if (bottom.size() >= 6) {
-	CasRegFindMatches(all_loc_preds, all_gt_bboxes, prior_bboxes, prior_variances,
-			    multibox_loss_param_, &all_match_overlaps, &all_match_indices_, all_arm_loc_preds);
+  CasRegFindMatches(all_loc_preds, all_gt_bboxes, prior_bboxes, prior_variances,
+          multibox_loss_param_, &all_match_overlaps, &all_match_indices_, all_arm_loc_preds);
   }
   else {
     FindMatches(all_loc_preds, all_gt_bboxes, prior_bboxes, prior_variances,
@@ -190,12 +190,10 @@ void MultiBoxLossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 
   num_matches_ = 0;
   int num_negs = 0;
-  // Sample hard negative (and positive) examples based on mining type.
-  MineHardExamples(*bottom[1], all_loc_preds, all_gt_bboxes, prior_bboxes,
-                   prior_variances, all_match_overlaps, multibox_loss_param_,
-                   &num_matches_, &num_negs, &all_match_indices_,
-                   &all_neg_indices_, arm_conf_data);
-
+  MineHardExamples(*bottom[1], all_loc_preds, all_arm_loc_preds,all_gt_bboxes, prior_bboxes,
+                 prior_variances, all_match_overlaps, multibox_loss_param_,
+                 &num_matches_, &num_negs, &all_match_indices_,
+                 &all_neg_indices_, arm_conf_data);
   if (num_matches_ >= 1) {
     // Form data to pass on to loc_loss_layer_.
     vector<int> loc_shape(2);
@@ -206,14 +204,14 @@ void MultiBoxLossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     Dtype* loc_pred_data = loc_pred_.mutable_cpu_data();
     Dtype* loc_gt_data = loc_gt_.mutable_cpu_data();
     if (bottom.size() >= 6) {
-	  CasRegEncodeLocPrediction(all_loc_preds, all_gt_bboxes, all_match_indices_,
-	  					prior_bboxes, prior_variances, multibox_loss_param_,
-	  					loc_pred_data, loc_gt_data, all_arm_loc_preds);
+    CasRegEncodeLocPrediction(all_loc_preds, all_gt_bboxes, all_match_indices_,
+              prior_bboxes, prior_variances, multibox_loss_param_,
+              loc_pred_data, loc_gt_data, all_arm_loc_preds);
     }
     else {
-  	  EncodeLocPrediction(all_loc_preds, all_gt_bboxes, all_match_indices_,
-  	 					prior_bboxes, prior_variances, multibox_loss_param_,
-  	  					loc_pred_data, loc_gt_data);
+      EncodeLocPrediction(all_loc_preds, all_gt_bboxes, all_match_indices_,
+              prior_bboxes, prior_variances, multibox_loss_param_,
+                loc_pred_data, loc_gt_data);
     }
     loc_loss_layer_->Reshape(loc_bottom_vec_, loc_top_vec_);
     loc_loss_layer_->Forward(loc_bottom_vec_, loc_top_vec_);
