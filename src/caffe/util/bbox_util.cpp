@@ -1234,8 +1234,10 @@ void MineHardExamples(const Blob<Dtype>& conf_blob,
         }
       }
     }
-    all_neg_indices->push_back(neg_indices);
   }
+  all_neg_indices->push_back(neg_indices);
+  }
+ thiscount++;
 }
 
 // Explicite initialization.
