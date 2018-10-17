@@ -160,4 +160,16 @@ void GenerateBatchSamples(const AnnotatedDatum& anno_datum,
   }
 }
 
+bool IfValidBBox(const NormalizedBBox& bbox) {
+  if(bbox.xmax() - bbox.xmin() < 0.1){
+    return false;
+  }
+  if(bbox.ymax() - bbox.ymin() < 0.1){
+    return false;
+  }
+  return true;
+}
+
+
+
 }  // namespace caffe
