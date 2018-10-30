@@ -27,14 +27,17 @@ bool SatisfySampleConstraint(const NormalizedBBox& sampled_bbox,
       sample_constraint.has_max_sample_coverage();
   bool has_object_coverage = sample_constraint.has_min_object_coverage() ||
       sample_constraint.has_max_object_coverage();
+  bool has_coveraged_object_num = sample_constraint.has_min_coveraged_objects() ||
+      sample_constraint.has_max_coveraged_objects();
   bool satisfy = !has_jaccard_overlap && !has_sample_coverage &&
-      !has_object_coverage;
+      !has_object_coverage && !has_coveraged_object_num;
   if (satisfy) {
     // By default, the sampled_bbox is "positive" if no constraints are defined.
     return true;
   }
   // Check constraints.
   bool found = false;
+  int coveraged_object = 0;
   for (int i = 0; i < object_bboxes.size(); ++i) {
     const NormalizedBBox& object_bbox = object_bboxes[i];
     // Test jaccard overlap.
@@ -64,7 +67,7 @@ bool SatisfySampleConstraint(const NormalizedBBox& sampled_bbox,
       found = true;
     }
     // Test object coverage.
-    if (has_object_coverage) {
+    if (has_object_coverage && !has_coveraged_object_num) {
       const float object_coverage = BBoxCoverage(object_bbox, sampled_bbox);
       if (sample_constraint.has_min_object_coverage() &&
           object_coverage < sample_constraint.min_object_coverage()) {
@@ -76,9 +79,29 @@ bool SatisfySampleConstraint(const NormalizedBBox& sampled_bbox,
       }
       found = true;
     }
-    if (found) {
+    // Test num of coveraged objects.
+    if (has_coveraged_object_num) {
+      if (!sample_constraint.has_min_object_coverage()) {
+        LOG(FATAL) << "You can not just use coveraged_object_num without min_object_coverage";
+      }
+      const float object_coverage = BBoxCoverage(object_bbox, sampled_bbox);
+      if (object_coverage < sample_constraint.min_object_coverage()) {
+        continue;
+      }
+      coveraged_object += 1;
+    }
+    if (!has_coveraged_object_num && found) {
       return true;
     }
+  }
+  if (has_coveraged_object_num) {
+    if (coveraged_object < sample_constraint.min_coveraged_objects()) {
+      continue;
+    }
+    if (coveraged_object > sample_constraint.max_coveraged_objects()) {
+      continue;
+    }
+    return true;
   }
   return found;
 }
