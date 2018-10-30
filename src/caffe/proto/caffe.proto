@@ -85,9 +85,9 @@ message SampleConstraint {
   // Maximum coverage of all bboxes in AnnotationGroup by sampled bbox.
   optional float max_object_coverage = 6;
   // Minimum num of coveraged bboxes in AnnotationGroup by sampled bbox.
-  optional int min_coveraged_objects = 7;
+  optional int32 min_coveraged_objects = 7;
   // Maximum num of coveraged bboxes in AnnotationGroup by sampled bbox.
-  optional int max_coveraged_objects = 8;
+  optional int32 max_coveraged_objects = 8;
 
 }
 
