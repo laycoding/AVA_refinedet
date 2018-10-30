@@ -96,10 +96,10 @@ bool SatisfySampleConstraint(const NormalizedBBox& sampled_bbox,
   }
   if (has_coveraged_object_num) {
     if (coveraged_object < sample_constraint.min_coveraged_objects()) {
-      continue;
+      return false;
     }
     if (coveraged_object > sample_constraint.max_coveraged_objects()) {
-      continue;
+      return false;
     }
     return true;
   }
